@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: .
+    container_name: shopsphere-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - USER_SERVICE_URL=http://user-service:8001
+      - PRODUCT_SERVICE_URL=http://product-service:8002
+      - ORDER_SERVICE_URL=http://order-service:8003
+      - JWT_SECRET=your-jwt-secret-key
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - shopsphere-network
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  shopsphere-network:
+    external: true 

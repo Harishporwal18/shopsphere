@@ -88,6 +88,35 @@ services:
       DB_USERNAME: order_admin
       DB_PASSWORD: password
 
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      USER_SERVICE_URL: http://user-service:80
+      PRODUCT_SERVICE_URL: http://product-service:80
+      ORDER_SERVICE_URL: http://order-service:80
+      JWT_SECRET: your-jwt-secret-key
+      CORS_ORIGIN: http://localhost:3000
+    volumes:
+      - ./api-gateway/logs:/app/logs
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 volumes:
   user_db_data:
   product_db_data:

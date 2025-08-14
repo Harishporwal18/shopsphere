@@ -1,2 +1,49 @@
+# Dependencies
 /node_modules
+api-gateway/node_modules
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+api-gateway/.env
+user-service/.env
+product-service/.env
+order-service/.env
+
+# Laravel specific
+user-service/storage/logs/*
+user-service/storage/framework/cache/*
+user-service/storage/framework/sessions/*
+user-service/storage/framework/views/*
+product-service/storage/logs/*
+product-service/storage/framework/cache/*
+product-service/storage/framework/sessions/*
+product-service/storage/framework/views/*
+order-service/storage/logs/*
+order-service/storage/framework/cache/*
+order-service/storage/framework/sessions/*
+order-service/storage/framework/views/*
+
+# API Gateway logs
+api-gateway/logs/*
+!api-gateway/logs/.gitkeep
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
 
