@@ -1,66 +1,404 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ShopSphere - Laravel Microservices E-commerce Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern e-commerce platform built with Laravel microservices architecture, featuring separate services for user management, product catalog, and order processing.
 
-## About Laravel
+## 🏗️ Architecture Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This application consists of three independent microservices:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **User Service** (Port 8001) - Handles authentication, user registration, profile management
+- **Product Service** (Port 8002) - Manages products, categories, inventory
+- **Order Service** (Port 8003) - Processes orders, manages order status
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Technology Stack
 
-## Learning Laravel
+- **Backend**: Laravel 10.x
+- **Database**: PostgreSQL
+- **Authentication**: Laravel Passport
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📋 Prerequisites
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.1 or higher
+- Composer
+- PostgreSQL 14+
+- Node.js & NPM
+- Git
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Quick Setup
 
-## Laravel Sponsors
+### Option 1: Docker Setup (Recommended)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Since `docker-compose.yml` is already present in the repository:
 
-### Premium Partners
+```bash
+# Clone and start with Docker
+git clone https://github.com/Harishporwal18/shopsphere.git
+cd shopsphere
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# Start all services with Docker
+docker-compose up -d
 
-## Contributing
+# Run migrations and seeders
+docker-compose exec user-service php artisan migrate:fresh --seed
+docker-compose exec user-service php artisan passport:install --force
+docker-compose exec product-service php artisan migrate:fresh --seed  
+docker-compose exec order-service php artisan migrate:fresh --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Option 2: Local Development Setup
 
-## Code of Conduct
+### 1. Clone the Repository
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone https://github.com/Harishporwal18/shopsphere.git
+cd shopsphere
+```
 
-## Security Vulnerabilities
+### 2. Database Setup (For Local Development Only)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+*Skip this section if using Docker - databases are configured automatically*
 
-## License
+Create three PostgreSQL databases with different ports:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```sql
+-- Database 1 (Port 5432)
+CREATE DATABASE user_service;
+CREATE USER user_admin WITH PASSWORD 'rgvfcr';
+GRANT ALL PRIVILEGES ON DATABASE user_service TO user_admin;
+
+-- Database 2 (Port 5433) 
+CREATE DATABASE product_service;
+CREATE USER product_admin WITH PASSWORD 'fvfd';
+GRANT ALL PRIVILEGES ON DATABASE product_service TO product_admin;
+
+-- Database 3 (Port 5434)
+CREATE DATABASE order_service;
+CREATE USER order_admin WITH PASSWORD 'dvf';
+GRANT ALL PRIVILEGES ON DATABASE order_service TO order_admin;
+```
+
+### 3. Service Configuration
+
+#### User Service Configuration
+```bash
+cd user-service
+cp .env.example .env
+```
+
+Edit `user-service/.env`:
+```env
+APP_NAME="User Service"
+APP_ENV=local
+APP_KEY=base64:/I9t+llqR+rvcrf=
+APP_DEBUG=true
+APP_URL=http://localhost:8001
+
+DB_CONNECTION=pgsql
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=user_service
+DB_USERNAME=user_admin
+DB_PASSWORD=rgvfcr
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+PASSPORT_PERSONAL_ACCESS_CLIENT_ID=1
+PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=your_secret_here
+```
+
+#### Product Service Configuration
+```bash
+cd ../product-service
+cp .env.example .env
+```
+
+Edit `product-service/.env`:
+```env
+APP_NAME="Product Service"
+APP_ENV=local
+APP_KEY=base64:generate_new_key_here
+APP_DEBUG=true
+APP_URL=http://localhost:8002
+
+DB_CONNECTION=pgsql
+DB_HOST=localhost
+DB_PORT=5433
+DB_DATABASE=product_service
+DB_USERNAME=product_admin
+DB_PASSWORD=fvfd
+
+USER_SERVICE_URL=http://localhost:8001
+ORDER_SERVICE_URL=http://localhost:8003
+```
+
+#### Order Service Configuration
+```bash
+cd ../order-service
+cp .env.example .env
+```
+
+Edit `order-service/.env`:
+```env
+APP_NAME="Order Service"
+APP_ENV=local
+APP_KEY=base64:generate_new_key_here
+APP_DEBUG=true
+APP_URL=http://localhost:8003
+
+DB_CONNECTION=pgsql
+DB_HOST=localhost
+DB_PORT=5434
+DB_DATABASE=order_service
+DB_USERNAME=order_admin
+DB_PASSWORD=dvf
+
+USER_SERVICE_URL=http://localhost:8001
+PRODUCT_SERVICE_URL=http://localhost:8002
+```
+
+### 4. Install Dependencies & Setup
+
+Run this script to setup all services at once:
+
+```bash
+#!/bin/bash
+# setup.sh - One command setup for all microservices
+
+echo "🚀 Setting up ShopSphere Microservices..."
+
+# User Service Setup
+echo "📝 Setting up User Service..."
+cd user-service
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan passport:install --force
+cd ..
+
+# Product Service Setup
+echo "📦 Setting up Product Service..."
+cd product-service
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+cd ..
+
+# Order Service Setup
+echo "📋 Setting up Order Service..."
+cd order-service
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+cd ..
+
+echo "✅ All services setup complete!"
+echo "📍 Use 'npm run dev' to start all services"
+```
+
+Make it executable and run:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+### 5. Start All Services
+
+Create a `package.json` in the root directory for easy service management:
+
+```json
+{
+  "name": "shopsphere-microservices",
+  "scripts": {
+    "dev": "concurrently \"php user-service/artisan serve --port=8001\" \"php product-service/artisan serve --port=8002\" \"php order-service/artisan serve --port=8003\"",
+    "user": "php user-service/artisan serve --port=8001",
+    "product": "php product-service/artisan serve --port=8002", 
+    "order": "php order-service/artisan serve --port=8003"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
+```
+
+Install concurrently and start all services:
+```bash
+npm install
+npm run dev
+```
+
+## 📚 API Documentation
+
+### Service Endpoints
+
+| Service | Base URL | Port |
+|---------|----------|------|
+| User Service | http://localhost:8001 | 8001 |
+| Product Service | http://localhost:8002 | 8002 |
+| Order Service | http://localhost:8003 | 8003 |
+
+### Key API Endpoints
+
+#### Authentication (User Service - Port 8001)
+- `POST /api/register` - Register new user
+- `POST /api/login` - User login
+- `POST /api/logout` - User logout
+- `GET /api/user` - Get user profile
+- `POST /api/refresh` - Refresh token
+
+#### Products (Product Service - Port 8002)
+- `GET /api/v1/products` - List all products
+- `POST /api/v1/products` - Create product
+- `GET /api/v1/products/{id}` - Get product details
+- `PUT /api/v1/products/{id}` - Update product
+- `DELETE /api/v1/products/{id}` - Delete product
+
+#### Orders (Order Service - Port 8003)
+- `GET /api/v1/orders` - List orders
+- `POST /api/v1/orders` - Create order
+- `GET /api/v1/orders/{id}` - Get order details
+- `PATCH /api/v1/orders/{id}/status` - Update order status
+
+## 🧪 Testing with Postman
+
+Import the provided Postman collection (`laravel_postman_collection.json`) to test all endpoints:
+
+1. Open Postman
+2. Import the collection file
+3. Set environment variables:
+    - `base_url`: http://localhost
+    - `user_service_port`: 8001
+    - `product_service_port`: 8002
+    - `order_service_port`: 8003
+
+## 🔧 Database Migrations & Seeders
+
+Each service manages its own database migrations and seeders:
+
+```bash
+# User Service
+cd user-service
+php artisan migrate:fresh --seed
+
+# Product Service  
+cd product-service
+php artisan migrate:fresh --seed
+
+# Order Service
+cd order-service
+php artisan migrate:fresh --seed
+```
+
+## 🛡️ Authentication
+
+The platform uses **Laravel Passport** for API authentication:
+
+- User Service handles authentication and issues access tokens
+- Other services validate tokens via User Service internal endpoints
+- Inter-service communication uses service tokens for security
+
+### Setup Passport (if not done automatically)
+
+```bash
+cd user-service
+php artisan passport:install
+php artisan passport:client --personal
+```
+
+## 🐳 Docker Usage
+
+The repository includes `docker-compose.yml` for easy containerized deployment:
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services  
+docker-compose down
+
+# Rebuild and start
+docker-compose up -d --build
+```
+
+### Docker Commands for Development
+
+```bash
+# Access service containers
+docker-compose exec user-service bash
+docker-compose exec product-service bash
+docker-compose exec order-service bash
+
+# Run artisan commands
+docker-compose exec user-service php artisan migrate
+docker-compose exec product-service php artisan cache:clear
+docker-compose exec order-service php artisan queue:work
+```
+
+## 📝 Project Structure
+
+```
+shopsphere/
+├── user-service/          # User management & authentication
+├── product-service/       # Product catalog & inventory
+├── order-service/         # Order processing
+├── docker-compose.yml     # Docker configuration
+├── laravel_postman_collection.json
+├── setup.sh
+├── package.json
+└── README.md
+```
+
+## 🔍 Health Checks
+
+Each service provides health check endpoints:
+- User Service: `GET http://localhost:8001/api/health`
+- Product Service: `GET http://localhost:8002/api/health`
+- Order Service: `GET http://localhost:8003/api/health`
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Port conflicts**: Ensure ports 8001-8003 are available
+2. **Database connections**: Verify PostgreSQL is running (for local setup)
+3. **Passport keys**: Run `php artisan passport:install` if authentication fails
+4. **Docker issues**: Run `docker-compose down && docker-compose up -d --build`
+5. **Permissions**: Ensure storage and cache directories are writable
+
+### Debug Commands
+
+```bash
+# Check service status
+curl http://localhost:8001/api/health
+curl http://localhost:8002/api/health  
+curl http://localhost:8003/api/health
+
+# View logs
+tail -f user-service/storage/logs/laravel.log
+tail -f product-service/storage/logs/laravel.log
+tail -f order-service/storage/logs/laravel.log
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+## 👨‍💻 Author
+
+Created by [Harish Porwal](https://github.com/Harishporwal18)
+
+---
+
+**Happy Coding! 🚀**

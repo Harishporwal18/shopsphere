@@ -1,0 +1,12 @@
+{
+  "name": "shopsphere-microservices",
+  "scripts": {
+    "dev": "concurrently \"php user-service/artisan serve --port=8001\" \"php product-service/artisan serve --port=8002\" \"php order-service/artisan serve --port=8003\"",
+    "user": "php user-service/artisan serve --port=8001",
+    "product": "php product-service/artisan serve --port=8002",
+    "order": "php order-service/artisan serve --port=8003"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
