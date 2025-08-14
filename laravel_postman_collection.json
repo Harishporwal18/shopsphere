@@ -1,0 +1,981 @@
+{
+  "info": {
+    "name": "Laravel Microservices API Collection",
+    "description": "Complete API collection for Laravel microservices architecture",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_service_port",
+      "value": "8001",
+      "type": "string"
+    },
+    {
+      "key": "product_service_port",
+      "value": "8002",
+      "type": "string"
+    },
+    {
+      "key": "order_service_port",
+      "value": "8003",
+      "type": "string"
+    },
+    {
+      "key": "api_gateway_port",
+      "value": "8000",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication Service",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"phone\": \"+1234567890\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"New York\",\n    \"country\": \"USA\",\n    \"date_of_birth\": \"1990-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/register",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/login",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/user",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "user"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"current_password\": \"password123\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/change-password",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/refresh",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "refresh"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/logout",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/users",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Smith\",\n    \"email\": \"johnsmith@example.com\",\n    \"phone\": \"+1234567891\",\n    \"address\": \"456 Oak Avenue\",\n    \"city\": \"Los Angeles\",\n    \"country\": \"USA\",\n    \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/users/1",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/users/stats",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "users", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/health",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gaming Laptop\",\n    \"description\": \"High-performance gaming laptop with RTX graphics\",\n    \"price\": 1299.99,\n    \"stock_quantity\": 10,\n    \"category_id\": 1,\n    \"sku\": \"LAP-001\",\n    \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products"]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Premium Gaming Laptop\",\n    \"description\": \"Ultra high-performance gaming laptop with RTX 4080\",\n    \"price\": 1599.99,\n    \"stock_quantity\": 8,\n    \"category_id\": 1,\n    \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Product Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"stock_quantity\": 15,\n    \"operation\": \"set\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products/1/stock",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products", "1", "stock"]
+            }
+          }
+        },
+        {
+          "name": "Get Product Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/products/stats/summary",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "products", "stats", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Category Service",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/categories",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/categories/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "categories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic devices and gadgets\",\n    \"slug\": \"electronics\",\n    \"status\": \"active\",\n    \"parent_id\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/categories",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Consumer Electronics\",\n    \"description\": \"Consumer electronic devices and accessories\",\n    \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/categories/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "categories", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/v1/categories/1",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "v1", "categories", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/health",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders/1",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 1,\n    \"items\": [\n        {\n            \"product_id\": 1,\n            \"quantity\": 2,\n            \"price\": 999.99\n        },\n        {\n            \"product_id\": 2,\n            \"quantity\": 1,\n            \"price\": 599.99\n        }\n    ],\n    \"shipping_address\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zip_code\": \"10001\",\n        \"country\": \"USA\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"shipping_address\": {\n        \"street\": \"456 Oak Avenue\",\n        \"city\": \"Los Angeles\",\n        \"state\": \"CA\",\n        \"zip_code\": \"90210\",\n        \"country\": \"USA\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders/1",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders/1",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"shipped\",\n    \"tracking_number\": \"TRK123456789\",\n    \"notes\": \"Order shipped via FedEx\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders/1/status",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{order_service_port}}/api/v1/orders/stats/summary",
+              "host": ["{{base_url}}"],
+              "port": "{{order_service_port}}",
+              "path": ["api", "v1", "orders", "stats", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Gateway",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{api_gateway_port}}/health",
+              "host": ["{{base_url}}"],
+              "port": "{{api_gateway_port}}",
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Gateway - Get Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{api_gateway_port}}/api/products",
+              "host": ["{{base_url}}"],
+              "port": "{{api_gateway_port}}",
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "Gateway - Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 1,\n    \"items\": [\n        {\n            \"product_id\": 1,\n            \"quantity\": 1\n        }\n    ],\n    \"shipping_address\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zip_code\": \"10001\",\n        \"country\": \"USA\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{api_gateway_port}}/api/orders",
+              "host": ["{{base_url}}"],
+              "port": "{{api_gateway_port}}",
+              "path": ["api", "orders"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Communication",
+      "item": [
+        {
+          "name": "Service Discovery",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}:{{api_gateway_port}}/api/services",
+              "host": ["{{base_url}}"],
+              "port": "{{api_gateway_port}}",
+              "path": ["api", "services"]
+            }
+          }
+        },
+        {
+          "name": "Inter-Service - User Validation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "internal-service-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 1,\n    \"action\": \"validate_user\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{user_service_port}}/api/internal/validate-user",
+              "host": ["{{base_url}}"],
+              "port": "{{user_service_port}}",
+              "path": ["api", "internal", "validate-user"]
+            }
+          }
+        },
+        {
+          "name": "Inter-Service - Product Stock Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Service-Token",
+                "value": "internal-service-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": 1,\n    \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}:{{product_service_port}}/api/internal/check-stock",
+              "host": ["{{base_url}}"],
+              "port": "{{product_service_port}}",
+              "path": ["api", "internal", "check-stock"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global pre-request script",
+          "console.log('Request to:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response status code should be less than 400', function () {",
+          "    pm.expect(pm.response.code).to.be.below(400);",
+          "});",
+          "",
+          "pm.test('Response should be JSON', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});"
+        ]
+      }
+    }
+  ]
+}
